@@ -3,7 +3,7 @@
 ## 🌐 Try WhyDrop Live
 
 <p align="center">
-  <a href="[YOUR_LIVE_LINK_HERE](https://why-drop.vercel.app/)">
+  <a href="https://why-drop.vercel.app/">
     <strong>🚀 Launch WhyDrop → </strong>
   </a>
 </p>
