@@ -9,7 +9,7 @@
     "app": {
       "root": ".",
       "framework": "flask",
-      "entrypoint": "app.py:app"
+      "entrypoint": "app:app"
     }
   },
   "rewrites": [
