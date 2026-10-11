@@ -1,122 +1,116 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ReferenceLine,
+  ResponsiveContainer,
+} from "recharts";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setLoading(true);
+    setError("");
+    setResult(null);
+
+    try {
+      const res = await fetch("http://localhost:5000/analyze", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error);
+      } else {
+        setResult(data);
+      }
+    } catch {
+      setError("Could not reach the server. Is Flask running?");
+    }
+
+    setLoading(false);
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    <div style={{ maxWidth: 800, margin: "40px auto", padding: 20, fontFamily: "sans-serif" }}>
+      <h1>WhyDrop</h1>
+      <p>Upload an Excel sales file to find why sales dropped.</p>
+
+      <input type="file" accept=".xlsx" onChange={handleUpload} />
+
+      {loading && <p>Analyzing...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {result && !result.drop_found && <p>{result.message}</p>}
+
+      {result && result.drop_found && (
         <div>
-          <h1>Get started</h1>
+          <h2>{result.summary}</h2>
           <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+            Drop started on: <b>{result.drop_date}</b>
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+          <p>
+            Sales fell from {result.before_total} to {result.after_total} (
+            {result.total_change_pct}%)
+          </p>
 
-      <div className="ticks"></div>
+          <div style={{ width: "100%", height: 300, margin: "20px 0" }}>
+            <ResponsiveContainer>
+              <LineChart data={result.daily}>
+                <XAxis dataKey="date" minTickGap={30} />
+                <YAxis domain={["auto", "auto"]} />
+                <Tooltip />
+                <ReferenceLine x={result.drop_date} stroke="red" label="Drop" />
+                <Line type="monotone" dataKey="value" stroke="#2563eb" dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+          <table
+            border="1"
+            cellPadding="8"
+            style={{ borderCollapse: "collapse", width: "100%" }}
+          >
+            <thead>
+              <tr>
+                <th>Segment</th>
+                <th>Before</th>
+                <th>After</th>
+                <th>Change</th>
+                <th>Share of drop</th>
+                <th>Impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.causes.map((c) => (
+                <tr key={c.segment}>
+                  <td>{c.segment}</td>
+                  <td>{c.before}</td>
+                  <td>{c.after}</td>
+                  <td>{c.change}</td>
+                  <td>{c.share_pct}%</td>
+                  <td>{c.impact}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
