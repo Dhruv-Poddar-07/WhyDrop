@@ -38,7 +38,7 @@ import {
   Modal,
 } from "./primitives";
 
-const API_URL = "http://localhost:5000/analyze"; // address of our Flask server
+const API_URL = "/api/analyze"; // address of our Flask server
 const WINDOW_DAYS = 7; // days compared before and after the drop
 
 const STATUS_LINES = [
