@@ -1,13 +1,7 @@
 import { useState } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ReferenceLine,
-  ResponsiveContainer,
-} from "recharts";
+
+// chart pieces from the recharts toolbox
+import {LineChart,Line, XAxis,YAxis,Tooltip,ReferenceLine, ResponsiveContainer,} from "recharts";  
 
 function App() {
   const [result, setResult] = useState(null);
@@ -51,7 +45,7 @@ function App() {
 
       <input type="file" accept=".xlsx" onChange={handleUpload} />
 
-      {loading && <p>Analyzing...</p>}
+       {loading && <p>Analyzing...</p>} {/*if loading receives something then show analyzing text */}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {result && !result.drop_found && <p>{result.message}</p>}
