@@ -2,11 +2,11 @@ import pandas as pd
 
 def analyze(df, kpi="revenue", date_col="date", dimensions=None, days=7):
     if dimensions is None:
-        dimensions = ["region", "category"]
+        dimensions = ["region", "category"]  #If no search columns were given, use region and category.
 
     df = df.copy() #will Make a duplicate of the table so the original is never changed
 
-    df[date_col] = pd.to_datetime(df[date_col])
+    df[date_col] = pd.to_datetime(df[date_col]) #Turn date text into real dates so they can be sorted and subtracted.
 
     # 1. daily totals
     daily = df.groupby(date_col)[kpi].sum()
@@ -16,7 +16,7 @@ def analyze(df, kpi="revenue", date_col="date", dimensions=None, days=7):
     best_day = None  #to write the position from which the drop starts 
     best_step = 0  #the biggesst fall found so far
 
-    for i in range(7, len(values) - 4):  #i.e it has range of 7 to 60 (as for a week)  , Why start at 7? We need 7 days before the candidate, and positions 0 to 6 don’t have that. Why stop at 55? We need 5 days from the candidate onward, so we can’t go past the end.
+    for i in range(7, len(values) - 4):  #, Why start at 7? We need 7 days before the candidate, and positions 0 to 6 don’t have that. Why stop at 55? We need 5 days from the candidate onward, so we can’t go past the end.
 
         before_avg = values[i - 7:i].mean()
         after_avg = values[i:i + 5].mean()
@@ -26,7 +26,7 @@ def analyze(df, kpi="revenue", date_col="date", dimensions=None, days=7):
             best_step = step
             best_day = i
 
-    if best_day is None or best_step > -2:  #If no fall was found, or the biggest fall is smaller than 2%, stop here.
+    if best_day is None or best_step > -2:  #If no fall was found, or the biggest fall is smaller than 2%, stop here. and return
         return {"drop_found": False, "message": "No significant drop found."}
 
     drop_start = daily.index[best_day]
@@ -58,7 +58,8 @@ def analyze(df, kpi="revenue", date_col="date", dimensions=None, days=7):
 
     # 6. build the answer
     results = [] #An empty list, where we’ll collect the answer one cause at a time.
-    for key, row in causes.head(5).iterrows():
+    for key, row in causes.head(5).iterrows():  #Take the top 5 and loop over them. key is the pair’s label, row its numbers.
+        
         if isinstance(key, tuple): #isinstance(key, tuple) asks “is this a pair?”
             name = " -> ".join(str(k) for k in key) #" -> ".join(...) glues the parts together with an arrow between them, giving the text "Jaipur -> Vegetables". str(...) turns something into text.
         else:

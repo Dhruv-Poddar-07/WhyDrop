@@ -4,7 +4,7 @@ import pandas as pd
 from detective import analyze
 
 app = Flask(__name__)
-CORS(app)
+CORS(app) #tells browsers “a page from another address may call me”.
 
 
 @app.route("/api/analyze", methods=["POST"])
