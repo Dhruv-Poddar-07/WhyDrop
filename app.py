@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS #helps  React frontend communicate with  Flask backend when they run on different origins
 import pandas as pd
 from detective import analyze
 
@@ -24,10 +24,10 @@ def analyze_file():
 
     needed = ["date", "region", "category", "revenue"]
     missing = [c for c in needed if c not in df.columns]
-    if missing:
+    if missing: #needs the core knowledge 
         return jsonify({"error": "Missing columns: " + ", ".join(missing)}), 400
 
-    #The main moment. Give the table to your recipe in detective.py, get the dictionary back, convert it to JSON, and send it to the page.
+    #The main moment. Give the table to your func in detective.py, get the dictionary back, convert it to JSON, and send it to the page.
     result = analyze(df)
     return jsonify(result)
 
